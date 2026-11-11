@@ -1,61 +1,57 @@
 "use client";
 
+import { Braces, Download, Rocket } from "lucide-react";
+
 export default function Features() {
   const features = [
     {
       title: "Download HTML Files",
-      description: "Get HTML from supported no‑code sites (Framer first) with one click.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-lime-400">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="7 10 12 15 17 10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-      ),
+      description: "Get clean HTML + Tailwind from any website with one click.",
+      icon: <Download className="h-6 w-6 text-black" />,
+      bg: "bg-[#ffb110]",
+      titleColor: "text-black",
+      bodyColor: "text-black/70",
     },
     {
       title: "Deploy Anywhere (Coming Soon)",
       description: "Publish mirrors to your hosting or our managed hosting (soon).",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-lime-400">
-          <path d="M21 2H3v16h5v4l4-4h5l4-4V2zM11 11V7M16 11V7"></path>
-        </svg>
-      ),
+      icon: <Rocket className="h-6 w-6 text-[#0075de]" />,
+      bg: "bg-[#e6f3fe]",
+      titleColor: "text-black",
+      bodyColor: "text-black/70",
     },
     {
-      title: "No Coding Required",
-      description: "Our tool is designed for everyone, no technical knowledge needed to use it.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-lime-400">
-          <polyline points="16 18 22 12 16 6"></polyline>
-          <polyline points="8 6 2 12 8 18"></polyline>
-        </svg>
-      ),
+      title: "Tailwind, Readable by Default",
+      description: "Every page also ships as beautified Tailwind HTML plus a minified variant. No AI agent, no API key.",
+      icon: <Braces className="h-6 w-6 text-[#f64932]" />,
+      bg: "bg-[#f64932]",
+      titleColor: "text-white",
+      bodyColor: "text-white/80",
     },
   ];
 
   return (
-    <div className="py-16">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl sm:text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Everything you need to export no‑code sites
+    <div className="py-20">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-5xl font-medium tracking-[-0.035em] leading-[1.04] text-black">
+            Everything you need to morph any website
           </h2>
-          <p className="mt-6 text-lg text-muted-foreground">
-            ExportNoCode lets anyone download and deploy no‑code sites without technical steps.
+          <p className="mt-5 font-serif text-lg leading-relaxed text-[#615d59]">
+            SiteMorph lets anyone morph any website into clean code without technical steps.
           </p>
         </div>
-        <div className="mt-20 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature, i) => (
-            <div key={i} className="relative flex flex-col gap-6 border border-border p-8 rounded-xl bg-background/50">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/50">
+            <div key={i} className={`flex flex-col gap-6 rounded-xl p-6 ${feature.bg}`}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white">
                 {feature.icon}
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-foreground">
+                <h3 className={`text-[22px] font-bold tracking-[-0.011em] leading-[1.27] ${feature.titleColor}`}>
                   {feature.title}
                 </h3>
-                <p className="mt-2 text-base text-muted-foreground">
+                <p className={`mt-2 text-base leading-relaxed ${feature.bodyColor}`}>
                   {feature.description}
                 </p>
               </div>

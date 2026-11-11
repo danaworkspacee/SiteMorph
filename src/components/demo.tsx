@@ -1,9 +1,13 @@
 "use client";
 
+import { Maximize2, X } from "lucide-react";
+
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface DemoProps {
+	title?: string;
+	description?: string;
 	videoSrc: string;
 	thumbnailSrc?: string;
 	className?: string;
@@ -11,6 +15,8 @@ interface DemoProps {
 }
 
 export default function Demo({
+	title = "Watch SiteMorph in Action",
+	description = "See how SiteMorph transforms a website into clean, deployable code.",
 	videoSrc,
 	thumbnailSrc,
 	className = "",
@@ -68,24 +74,20 @@ export default function Demo({
 
 	return (
 		<div className="py-14 sm:px-0 px-4">
-			<div className="bg-muted/40 rounded-lg p-2 max-w-3xl mx-auto">
-				<div className="flex flex-row justify-start items-center gap-2 p-2">
-					<span className="relative flex h-4 w-4">
-						<span className="absolute inline-flex h-full w-full rounded-full bg-background opacity-75" />
-					</span>
-					<span className="relative flex h-4 w-4">
-						<span className="absolute inline-flex h-full w-full rounded-full bg-background opacity-75" />
-					</span>
-					<span className="relative flex h-4 w-4">
-						<span className="absolute inline-flex h-full w-full rounded-full bg-background opacity-75" />
-					</span>
-				</div>
+			<div className="flex flex-col items-center justify-center gap-4 max-w-2xl mx-auto mb-8">
+				<h2 className="text-4xl font-medium tracking-[-0.035em] leading-[1.1] text-black text-center">
+					{title}
+				</h2>
+				<p className="font-serif text-lg leading-relaxed text-[#615d59] text-center max-w-md">
+					{description}
+				</p>
+			</div>
+			<div className="bg-white border border-black/10 rounded-xl p-2 max-w-3xl mx-auto">
 				<div
 					className={`relative w-full max-w-3xl mx-auto rounded-lg overflow-hidden ${className}`}
 				>
-					{/* Glitch effect container */}
+					{/* Autoplay video */}
 					<div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
-						{/* Autoplay video */}
 						<video
 							ref={videoRef}
 							src={videoSrc}
@@ -110,7 +112,7 @@ export default function Demo({
 							Your browser does not support the video tag.
 						</video>
 						<span id="video-description" className="sr-only">
-							Demonstration video showing how the waitlist works. No captions
+							Demonstration video showing how SiteMorph turns a website into clean HTML + Tailwind. No captions
 							are necessary as this is primarily a visual demo with no speech.
 						</span>
 
@@ -121,46 +123,18 @@ export default function Demo({
 							>
 								{/* Expand icon */}
 								<motion.div
-									className="relative w-16 h-16 bg-[#e5ff00] rounded-full flex items-center justify-center mb-4 z-10"
+									className="relative w-16 h-16 bg-[#0075de] rounded-full flex items-center justify-center mb-4 z-10"
 									whileHover={{ scale: 1.1 }}
 									whileTap={{ scale: 0.95 }}
 									aria-label="Expand video to full screen"
 								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 24 24"
-										fill="black"
-										className="w-8 h-8"
-										aria-hidden="true"
-									>
-										<title>Expand Icon</title>
-										<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
-									</svg>
+									<Maximize2 className="h-8 w-8 text-white" aria-hidden="true" />
 								</motion.div>
 
 								{/* Text below the expand button */}
-								<p className="text-gray-300 text-sm">Click to expand</p>
+								<p className="text-white text-sm">Click to expand</p>
 							</div>
 						)}
-
-						{/* CRT scan lines effect */}
-						<div
-							className="absolute inset-0 pointer-events-none"
-							style={{
-								background:
-									"linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 51%, transparent 52%)",
-								backgroundSize: "100% 4px",
-							}}
-						/>
-
-						{/* Chromatic aberration edges */}
-						<div
-							className="absolute inset-0 pointer-events-none opacity-70"
-							style={{
-								boxShadow:
-									"inset 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 0, 0, 0.3), inset 0 0 20px rgba(0, 255, 0, 0.3), inset 0 0 20px rgba(0, 0, 255, 0.3)",
-							}}
-						/>
 					</div>
 				</div>
 
@@ -189,22 +163,7 @@ export default function Demo({
 									aria-label="Close video"
 									type="button"
 								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										className="h-8 w-8"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
-										aria-hidden="true"
-									>
-										<title>Close Icon</title>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M6 18L18 6M6 6l12 12"
-										/>
-									</svg>
+									<X className="h-8 w-8" aria-hidden="true" />
 								</button>
 
 								{/* Video player */}

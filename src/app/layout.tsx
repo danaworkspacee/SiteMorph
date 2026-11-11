@@ -1,28 +1,27 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Inter_Tight } from "next/font/google";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
 
 import "./globals.css";
-import Header from "~/components/header";
 import { ThemeProvider } from "~/providers/theme-provider";
-import { MeshGradientComponent } from "~/components/mesh-gradient";
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
-});
-
-const interTight = Inter_Tight({
-	variable: "--font-inter-tight",
+const inter = Inter({
+	variable: "--font-inter",
 	subsets: ["latin"],
 	weight: ["400", "500", "600", "700"],
 });
 
+const sourceSerif = Source_Serif_4({
+	variable: "--font-source-serif",
+	subsets: ["latin"],
+	weight: ["400"],
+});
+
 export const metadata: Metadata = {
-	title: "ExportNoCode - Export no-code sites (Framer and more) easily",
+	title: "SiteMorph - Morph any website into clean HTML + Tailwind",
 	description:
-		"ExportNoCode lets you download and export any supported no-code website (starting with Framer). Get HTML files instantly and deploy them anywhere.",
+		"SiteMorph lets you morph any website into clean, readable HTML + Tailwind. Get the files instantly and deploy them anywhere.",
 };
 
 export default function RootLayout({
@@ -33,28 +32,9 @@ export default function RootLayout({
 	return (
 		<html lang="en" className="h-full" suppressHydrationWarning>
 			<body
-				className={`${interTight.variable} ${geistMono.variable} antialiased flex flex-col h-full`}
+				className={`${inter.variable} ${sourceSerif.variable} antialiased flex flex-col h-full`}
 			>
-			<MeshGradientComponent
-			colors={[
-				"#0f1419",
-				"#1b2f1b",
-				"#0d2818",
-				"#1a1a1a"
-			]}
-
-			speed={1}
-			style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				zIndex: 0,
-				width: '100%',
-				height: '100%',
-			}}
-			/>
 				<ThemeProvider>
-					<Header />
 					<Toaster />
 					<Analytics />
 					{children}

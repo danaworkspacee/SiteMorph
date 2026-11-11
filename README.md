@@ -1,133 +1,146 @@
-# ExportNoCode
+# SiteMorph
 
-A tool that lets you export no‑code websites easily — starting with Framer.
+Morph any website into clean, local, working HTML.
 
-## Features
+It opens the site in a real browser (Playwright Chromium), renders every page with JavaScript running, downloads all assets, rewrites every link to a local path, and then converts each page to **readable Tailwind CSS** plus beautified and minified variants. No AI agent, no API key, no account. Everything runs locally on your machine.
 
-- **Easy Downloads**: Download HTML files from supported no‑code sites by simply entering the URL
-- **No Coding Required**: User-friendly interface for non-technical users
-- **Fast Processing**: Quickly extract website files with a single click
-- **Deploy Anywhere (Coming Soon)**: Deploy to any hosting provider with one-click deployment
-- **Custom Domain Support (Coming Soon)**: Use your own domain for deployed mirrors
-- **Analytics Integration (Coming Soon)**: Track visitor data on your deployed sites
+## What you get
 
-## Getting Started
+For every page, `sitemorph` writes:
 
-### Prerequisites
+| File | What it is |
+| --- | --- |
+| `<page>.html` | The rendered page, exactly as the browser saw it (scripts and styles intact) |
+| `<page>.clean.html` | Same page without scripts, RSC payloads and `data-*` attributes — **beautified** (indented, one tag per line, easy to read) |
+| `<page>.min.html` | The clean page **minified** (one line, smallest bytes) |
+| `<page>.animated.html` | Clean page + a small plain-JS animation script (videos autoplay muted and play in view, cursor follower, headline letter reveal) |
+| `<page>.tailwind.html` | The page converted to **Tailwind CSS** — semantic tags, Tailwind utilities derived from computed styles, no framework class soup — **beautified** |
+| `<page>.tailwind.min.html` | The Tailwind page **minified** |
 
-- Node.js 18.0 or higher
-- pnpm, npm, or yarn
-- Playwright Chromium browser (for extract / mirror)
+All six files are written **by default**. Use `--no-clean` or `--no-tailwind` to skip a set.
 
-### Installation
+## How the Tailwind conversion works — no AI agent needed
 
-1. Clone the repository
+The conversion is **deterministic code, not an AI agent**. It runs inside the same Playwright browser session that rendered the page:
+
+1. `tailwindConvertPage()` walks the live DOM and reads `getComputedStyle()` for every element.
+2. Each computed style is mapped to a Tailwind utility with fixed rules: `flex` / `grid` / `grid-cols-3`, `gap-[24px]`, `p-[32px]`, `bg-[#ffe500]`, `text-[110px]`, `rounded-[24px]`, and so on.
+3. Per-letter spans (how Framer/Jiro split headlines for animation) are joined back into whole words, so headings read as normal text.
+4. Fonts are detected from the page (e.g. Fredoka and Satoshi become `font-display` / `font-body`, with Google Fonts / Fontshare links and a `tailwind.config` block added automatically).
+5. Asset URLs are rewritten to the downloaded local files, exactly like the other outputs.
+
+Because there is no LLM involved, the conversion is free, offline, and reproducible — run it twice and you get the same result. If you want AI-level restructuring on top (renaming classes, restructuring layout, adding responsive variants), do that as a separate step on the `.tailwind.html` file with an agent of your choice.
+
+### Honest limits
+
+- Hover/focus states, CSS keyframe animations, and responsive breakpoints cannot be read from computed styles — the output is a static desktop layout plus video autoplay.
+- Framework artefacts are kept as-is (e.g. an absolutely positioned header, off-screen hover elements).
+- Lazy assets are captured with two slow scroll passes, but a few lazy videos/backgrounds can still 404 in some runs.
+
+## Quick start (npm)
+
 ```bash
-git clone https://github.com/weknowyourgame/framer-deploy.git
-cd framer-deploy
-```
-
-2. Install dependencies
-```bash
-pnpm install
-```
-
-3. Install Playwright browser (wajib sebelum extract/mirror)
-```bash
+git clone https://github.com/weknowyourgame/sitemorph.git
+cd sitemorph
+npm install
 npx playwright install chromium
-# atau: pnpm exec playwright install chromium
 ```
 
-4. (Opsional, hanya untuk API server / upload R2) buat file `.env.local`:
-```bash
-# SECRET_TOKEN=..., R2_ENDPOINT=..., R2_ACCESS_KEY=..., R2_SECRET_KEY=..., R2_BUCKET=...
-# Lihat .env.local yang sudah ada sebagai contoh
-```
-
-5. Start the development server
-```bash
-pnpm dev # For Next.js frontend
-pnpm api:dev # For Express API server
-```
-
-The Next.js application should now be running on `http://localhost:3000` and the Express API on `http://localhost:3001`.
-
-## Playwright Extract (hasil ke root project)
-
-Script `pnpm extract` menjalankan browser Chromium asli, membuka tiap halaman,
-merekam semua response (HTML, JS, CSS, gambar, font), lalu me-rewrite `src` /
-`srcset` / `href` jadi path lokal. Hasilnya ditaruh di **root project**:
-`./<hostname>-export/`.
-
-### Langkah-langkah extract
-
-1. Pastikan setup selesai (install deps + `npx playwright install chromium` di atas).
-
-2. Jalankan extract dengan URL target:
-```bash
-pnpm extract https://orange-property-949925.framer.app
-```
-
-3. Tunggu sampai muncul ringkasan `✔ Selesai` — contoh output:
-```
-✔ Selesai dalam 45.2s
-  Halaman dikunjungi : 8
-  Resource tersimpan : 120
-  HTML di-rewrite    : 8
-  Folder hasil       : /path/ke/project/orange-property-949925.framer.app-export
-```
-
-4. Lihat hasil (folder ada di root project):
-```bash
-ls ./orange-property-949925.framer.app-export
-npx serve ./orange-property-949925.framer.app-export
-# lalu buka http://localhost:3000
-```
-
-### Options extract
+Extract a site:
 
 ```bash
-pnpm extract <url> [options]
-
---out <dir>         Folder output. Default: ./<hostname>-export/ di root project
---max-depth <n>     Kedalaman crawl link internal. Default: 2
-                    (0 = hanya 1 halaman, 1 = + link langsung, dst.)
---timeout <ms>      Timeout per halaman. Default: 30000
---allowed <h1,h2>   Tambah host yang diizinkan, dipisah koma
--h, --help          Tampilkan bantuan
+npm run extract https://mysite.framer.website
+# or, after npm install -g sitemorph:
+npx sitemorph https://mysite.framer.website
 ```
 
-Contoh lain:
+Output goes to `./<hostname>-export/` in the project root. Serve it locally:
+
 ```bash
-# Hanya 1 halaman, tanpa ikuti link
-pnpm extract https://mysite.framer.website --max-depth 0
+npx serve ./mysite.framer.website-export
+# then open http://localhost:3000
+```
 
-# Output ke folder custom di root
-pnpm extract https://mysite.framer.website --out ./mysite-export
+## CLI usage
 
-# Langsung via node
+```bash
+sitemorph <url> [options]
+
+Options:
+  --out <dir>            Folder output. Default: ./<hostname>-export/ in project root
+  --max-depth <n>        How deep to follow internal links. Default: 2
+                         (0 = that page only, 1 = + direct links, ...)
+  --timeout <ms>         Timeout per page (ms). Default: 30000
+  --allowed <h1,h2>      Extra hosts allowed, comma separated
+  --rendered             Save the JS-rendered DOM (default: on). Off: --no-rendered
+  --clean                Also write *.clean.html (beautified), *.min.html (minified)
+                         and *.animated.html (clean + small animation script).
+                         Default: on. Off: --no-clean
+  --tailwind             Also convert each page to Tailwind CSS:
+                         *.tailwind.html (beautified, easy to read) +
+                         *.tailwind.min.html (minified, smallest bytes).
+                         Default: on. Off: --no-tailwind
+  --route <path>         Only crawl pages under this route (+ sub-paths).
+                         A path (/templates/...) or a full URL. Assets from
+                         CDNs are still captured. Default: whole host.
+  -h, --help             Show help
+```
+
+## Examples
+
+```bash
+# One page only, no link following
+npm run extract https://mysite.framer.website --max-depth 0
+
+# Output to a custom folder
+npm run extract https://mysite.framer.website --out ./mysite-export
+
+# Only one section of a site (e.g. one template on a listing site)
+npm run extract https://jiro.build/templates/local-services/pet-daycare-landing-page-pawvie \
+  --route /templates/local-services/pet-daycare-landing-page-pawvie
+
+# Raw render only — skip clean and Tailwind variants
+npm run extract https://mysite.framer.website --no-clean --no-tailwind
+
+# Directly with node
 node scripts/extract.mjs https://mysite.framer.website --max-depth 1
 ```
 
-### Catatan
+## How it works
 
-- Folder `*-export/` otomatis di-ignore git (lihat `.gitignore`), jadi aman tidak ke-commit.
-- Jika halaman lambat / blank, naikkan `--timeout` atau turunkan `--max-depth`.
-- Script selalu menimpa folder output dari awal (fresh mirror).
+1. Playwright Chromium loads each page — a real browser, so client-rendered sites (Framer, Next.js) actually render.
+2. Two slow scroll passes trigger lazy-loaded content (videos, background images).
+3. The rendered DOM is saved for every frame (top page + iframes, e.g. template previews).
+4. Every response is recorded and saved; `src`, `srcset` and `href` are rewritten to local relative paths, including URLs inside inline scripts / RSC payloads.
+5. Clean, animated and Tailwind variants are generated from the rendered DOM.
+6. The output folder is **wiped at the start of every run** (fresh mirror). Never run two extracts into the same folder expecting them to merge — extract extras into separate folders and merge with `cp -rn`.
 
-## How to Use
+## Web UI and API
 
-1. Enter the URL of any supported website in the input field (e.g., mysite.framer.website)
-2. Click the "Download" button
-3. The application will process the website and provide downloadable HTML files
-4. (Coming soon) Choose a hosting provider to deploy your website
+The repo also ships a Next.js frontend and an Express API server around the same mirror engine:
 
-## Tech Stack
+```bash
+npm run dev     # Next.js frontend on http://localhost:3000
+npm run api:dev # Express API server on http://localhost:3001
+```
+
+API: `POST /api/mirror` with JSON `{ url, max_depth, route, rendered, clean, tailwind }`.
+
+Optional, only for the API server / R2 upload: create `.env.local` (see the existing file for an example — `SECRET_TOKEN`, `R2_ENDPOINT`, `R2_ACCESS_KEY`, `R2_SECRET_KEY`, `R2_BUCKET`).
+
+## Notes
+
+- Folders like `*-export/` are git-ignored (see `.gitignore`), so extracts never get committed.
+- If a page is slow or blank, raise `--timeout` or lower `--max-depth`.
+
+## Tech stack
 
 - Next.js 15
 - React 19
 - Express.js (API server)
-- TailwindCSS
+- Playwright (real-browser rendering)
+- cheerio (HTML rewriting)
+- Tailwind CSS
 - TypeScript
 
 ## Contributing
@@ -136,4 +149,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

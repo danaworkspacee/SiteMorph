@@ -1,7 +1,12 @@
 {
-  "name": "exportnocode",
-  "version": "0.1.0",
-  "private": true,
+  "name": "sitemorph",
+  "version": "0.2.0",
+  "description": "Morph any website into clean local HTML \u2014 rendered with a real browser, converted to readable Tailwind CSS by default.",
+  "keywords": ["website", "export", "tailwind", "playwright", "mirror", "morph", "framer"],
+  "license": "MIT",
+  "bin": {
+    "sitemorph": "scripts/extract.mjs"
+  },
   "type": "module",
   "scripts": {
     "dev": "NODE_OPTIONS=--no-experimental-webstorage next dev --turbopack",
@@ -15,17 +20,11 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.887.0",
-    "@notionhq/client": "^3.0.1",
     "@paper-design/shaders-react": "^0.0.52",
     "@radix-ui/react-accordion": "^1.2.10",
     "@radix-ui/react-slot": "^1.2.2",
-    "@react-email/components": "^0.0.41",
-    "@react-email/render": "^1.1.2",
     "@types/canvas-confetti": "^1.9.0",
-    "@upstash/ratelimit": "^2.0.5",
-    "@upstash/redis": "^1.34.9",
     "@vercel/analytics": "^1.5.0",
-    "add": "^2.0.6",
     "archiver": "^7.0.1",
     "canvas-confetti": "^1.9.3",
     "cheerio": "^1.2.0",
@@ -41,21 +40,16 @@
     "playwright": "^1.64.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "resend": "^4.5.1",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "prettier": "^3.5.3",
-    "react-email": "4.0.16",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
     "typescript": "^5"
-  },
-  "packageManager": "pnpm@10.10.0"
+  }
 }

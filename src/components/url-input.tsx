@@ -24,12 +24,6 @@ export default function UrlInput({ onSubmit }: UrlInputProps) {
       return;
     }
 
-    // Basic URL validation
-    // if (!url.includes(".framer.") && !url.endsWith(".framer.website")) {
-    //   setError("Please enter a valid Framer website URL");
-    //   return;
-    // }
-
     setIsLoading(true);
     setDownloadProgress("Preparing to mirror website...");
     setDownloadStage(1);
@@ -95,7 +89,7 @@ export default function UrlInput({ onSubmit }: UrlInputProps) {
       
       // Get filename from content-disposition header or use default
       const contentDisposition = response.headers.get('content-disposition');
-      let filename = 'exportnocode-website-mirror.zip';
+      let filename = 'sitemorph-website-mirror.zip';
       if (contentDisposition) {
         const filenameMatch = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
         if (filenameMatch && filenameMatch[1]) {
@@ -123,7 +117,7 @@ export default function UrlInput({ onSubmit }: UrlInputProps) {
         setDownloadProgress(null);
         setDownloadStage(0);
       }, 5000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Download error:', error);
       
       // Handle specific error types
@@ -148,16 +142,16 @@ export default function UrlInput({ onSubmit }: UrlInputProps) {
             <input
               id="url-input"
               type="text"
-              placeholder="Enter your website URL (e.g., mysite.framer.website)"
+              placeholder="Enter any website URL (e.g., example.com)"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-12 w-full rounded-lg border border-black/10 bg-white px-4 py-2 text-base text-black placeholder:text-[#757575] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0075de]/40 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isLoading}
             />
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-[#e5ff00] text-black hover:bg-[#c2d900] h-12 w-30"
+              className="h-12 px-6"
             >
               {isLoading ? "Processing..." : "Download"}
             </Button>
@@ -165,13 +159,13 @@ export default function UrlInput({ onSubmit }: UrlInputProps) {
           {error && <p className="text-destructive text-sm">{error}</p>}
           {downloadProgress && (
             <div className="mt-3">
-              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+              <div className="w-full bg-black/10 rounded-full h-2.5 mb-2">
                 <div 
-                  className="bg-[#e5ff00] h-2.5 rounded-full transition-all duration-300" 
+                  className="bg-[#0075de] h-2.5 rounded-full transition-all duration-300" 
                   style={{ width: `${downloadStage * 33.33}%` }}
                 ></div>
               </div>
-              <p className="text-sm text-green-600 animate-pulse">
+              <p className="text-sm text-[#615d59]">
                 {downloadProgress}
               </p>
             </div>

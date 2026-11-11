@@ -14,9 +14,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json());
-// Enable CORS for all routes with specific options
+// Enable CORS for the production site and any local dev server.
+// Next.js picks the next free port when 3000 is taken, so allow any
+// localhost port (the '*' entry in the old array was NOT a wildcard in
+// the cors package, which broke dev servers on ports other than 3000).
+// The x-api-key auth below is the real access control, not CORS.
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://exportnocode.com', '*'],
+  origin: (origin, callback) => {
+    const allowed =
+      !origin || // non-browser clients (curl, server-to-server)
+      origin === 'https://sitemorph.com' ||
+      /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+    return callback(null, allowed);
+  },
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'x-api-key'],
   credentials: true
@@ -50,7 +60,8 @@ const MIRROR_TIMEOUT_MS = 360000;
 
 app.post(['/api/mirror', '/mirror'], async (req, res) => {
   try {
-    const { url, max_depth = 2, wait_time = 2.0 } = req.body;
+    const { url, max_depth = 2, wait_time = 2.0, route, route_prefix, scope, rendered = true, clean = true, tailwind = true } = req.body;
+    const routePrefix = route || route_prefix || scope || null;
 
     if (!url) return res.status(400).json({ detail: "URL is required" });
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -101,6 +112,10 @@ app.post(['/api/mirror', '/mirror'], async (req, res) => {
       const result = await mirrorSite(normalizedUrl, outputDir, {
         maxDepth: max_depth,
         signal: controller.signal,
+        ...(routePrefix ? { routePrefix } : {}),
+        rendered,
+        clean,
+        tailwind,
       });
       clearTimeout(timeout);
       if (responded) return; // timeout already fired while we were finishing up
@@ -204,8 +219,9 @@ app.post(['/api/mirror', '/mirror'], async (req, res) => {
 
 // Start the server if not being imported
 if (import.meta.url === `file://${process.argv[1]}`) {
-  // Always use port 3001 for development to match Next.js API route expectations
-  const PORT = 3001;
+  // Default port 3001 for development to match Next.js API route expectations.
+  // Override with PORT when 3001 is taken by another dev server.
+  const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
   try {
     app.listen(PORT, () => {
       console.log(`Express server running on port ${PORT}`);

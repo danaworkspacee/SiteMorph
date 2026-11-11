@@ -1,19 +1,29 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Logo } from "./svgs";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { Check } from "lucide-react";
 import UrlInput from "./url-input";
+import { Logo } from "./svgs";
 import { toast } from "sonner";
 
+// The highlighted word in the hero headline rotates through these words,
+// like Notion's hero. Kept short so the headline stays on one line.
+const ROTATING_WORDS = ["clean", "readable", "beautiful", "modern"];
+
 export default function Hero() {
-  const year = useMemo(() => new Date().getFullYear(), []);
-  const [isDownloading, setIsDownloading] = useState(false);
-  
-  const handleSubmit = async (url: string) => {
-    setIsDownloading(true);
-    
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setWordIndex((i) => (i + 1) % ROTATING_WORDS.length);
+    }, 2500);
+    return () => clearInterval(id);
+  }, []);
+
+  const handleSubmit = async () => {
     try {
-      toast.info('Processing your download request...', { 
+      toast.info('Processing your download request...', {
         duration: 8000,
         description: 'Your download will start automatically when ready.'
       });
@@ -22,51 +32,56 @@ export default function Hero() {
     } catch (error) {
       console.error('Error downloading website:', error);
       toast.error(`Failed to download: ${error instanceof Error ? error.message : 'Please try again.'}`);
-    } finally {
-      setIsDownloading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 py-10">
-      <div className="flex flex-col items-center justify-center gap-6 mb-2">
-        {/* <Logo /> */}
-        <div className="flex items-center gap-4 rounded-full border border-border px-4 py-1 relative">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-lime-400" />
-          </span>
-          <p className="uppercase text-sm font-medium">
-            100% Off 🎉 | Premium Plan Coming Soon!
-          </p>
+    <div className="flex flex-col items-center justify-center gap-8 px-4 py-20 sm:py-24">
+      <div className="flex flex-col items-center justify-center gap-5 w-full text-center">
+        <div className="flex items-center gap-3">
+          <Logo className="h-10 w-10" />
+          <span className="text-xl font-semibold tracking-tight text-black">SiteMorph</span>
         </div>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-4 max-w-2xl">
-        <h2 className="sm:text-5xl text-4xl font-bold text-foreground text-center">
-          Export no‑code sites instantly
-        </h2>
-        <p className="text-base text-muted-foreground text-center max-w-md">
-          Paste any supported no‑code site URL and get HTML files instantly. Deploy anywhere with a few clicks.
+        <h1 className="text-[clamp(2.25rem,4vw,3.5rem)] font-medium tracking-[-0.028em] leading-[1.04] text-black">
+          Morph any website into{" "}
+          <span className="inline-block rounded-full bg-[#ffb110] px-5 py-1">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={ROTATING_WORDS[wordIndex]}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="inline-block"
+              >
+                {ROTATING_WORDS[wordIndex]}
+              </motion.span>
+            </AnimatePresence>
+          </span>{" "}
+          HTML + Tailwind.
+        </h1>
+        <p className="font-serif text-lg leading-relaxed text-[#615d59] max-w-xl">
+          Paste any website URL and get clean, readable HTML + Tailwind. No AI agent, no API key. Just the files, ready to deploy anywhere.
         </p>
       </div>
-      
-      <div className="w-full max-w-xl px-4">
+
+      <div className="w-full max-w-xl">
         <UrlInput onSubmit={handleSubmit} />
       </div>
-      
-      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-lime-400"></span>
-          <span>Easy to use</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-lime-400"></span>
-          <span>No coding required</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-lime-400"></span>
-          <span>Deployment coming soon</span>
-        </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-[#757575]">
+        <span className="flex items-center gap-1.5">
+          <Check className="h-4 w-4 text-[#0075de]" />
+          Easy to use
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Check className="h-4 w-4 text-[#0075de]" />
+          No API key needed
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Check className="h-4 w-4 text-[#0075de]" />
+          Deployment coming soon
+        </span>
       </div>
     </div>
   );
